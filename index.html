@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Background Remover</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    .card {
+      background: #1e293b;
+      padding: 1.5rem;
+      border-radius: 14px;
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    input[type="file"] { margin: 1.2rem 0; width: 100%; color: #94a3b8; }
+    .status { margin: 0.8rem 0; font-size: 0.9rem; color: #38bdf8; }
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      background: repeating-conic-gradient(#334155 0% 25%, #1e293b 0% 50%) 50% / 16px 16px;
+      display: none;
+      margin-top: 1rem;
+    }
+    .btn {
+      display: none;
+      margin-top: 1rem;
+      background: #2563eb;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>AI Background Remover</h2>
+    <p style="font-size: 0.85rem; color: #94a3b8;">100% In-Browser & Free</p>
+
+    <input type="file" id="imageInput" accept="image/*" />
+    <div id="status" class="status"></div>
+    <img id="resultImage" alt="Output preview" />
+    <a id="downloadBtn" class="btn" download="cutout.png">Download PNG</a>
+  </div>
+
+  <script type="module">
+    import imglyRemoveBackground from 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm';
+
+    const input = document.getElementById('imageInput');
+    const status = document.getElementById('status');
+    const resultImg = document.getElementById('resultImage');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    input.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      status.innerText = "Processing with AI... (First run downloads weights, please wait)";
+      resultImg.style.display = "none";
+      downloadBtn.style.display = "none";
+
+      try {
+        const blob = await imglyRemoveBackground(file);
+        const url = URL.createObjectURL(blob);
+
+        resultImg.src = url;
+        resultImg.style.display = "block";
+
+        downloadBtn.href = url;
+        downloadBtn.style.display = "block";
+        status.innerText = "Done!";
+      } catch (err) {
+        console.error(err);
+        status.innerText = "Error removing background. Try another image.";
+      }
+    });
+  </script>
+</body>
+</html>
